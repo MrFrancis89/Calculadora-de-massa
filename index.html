@@ -16,7 +16,7 @@
             --text-soft: #8A8A8F;
             --border: rgba(255, 255, 255, 0.08);
             --accent-primary: #FF9F0A; 
-            --danger: #FF453A; /* Vermelho Apple para apagar */
+            --danger: #FF453A;
         }
 
         * {
@@ -54,7 +54,6 @@
             scroll-behavior: smooth;
         }
 
-        /* Esconder a scrollbar mas manter a funcionalidade */
         .tabs-container::-webkit-scrollbar { display: none; }
         .tabs-container { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -136,22 +135,48 @@
             padding: 5px;
         }
 
-        /* ── Entradas e Sliders (Reutilizados da versão anterior) ── */
-        .header-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-        .input-group { background: var(--surface-2); padding: 16px; border-radius: 12px; border: 1px solid var(--border); }
-        .input-group label { display: block; color: var(--text-soft); font-size: 0.8rem; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
-        .input-group input[type="number"] { width: 100%; background: transparent; border: none; color: var(--accent-primary); font-size: 1.8rem; font-weight: 700; outline: none; }
+        /* ── Entradas (Inputs) ── */
+        .header-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 16px; 
+            margin-bottom: 24px; 
+        }
+        
+        /* Aumentei a margem inferior da secção de ingredientes para separar dos resultados */
+        .ingredientes-section {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
 
-        .sliders-container { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
-        .slider-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-        .slider-row:last-child { margin-bottom: 0; }
-        .slider-label { width: 30%; font-size: 0.95rem; font-weight: 500; }
-        .slider-input { width: 45%; }
-        .slider-input input[type="range"] { width: 100%; -webkit-appearance: none; background: transparent; }
-        .slider-input input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 6px; background: var(--surface-2); border-radius: 4px; }
-        .slider-input input[type="range"]::-webkit-slider-thumb { height: 24px; width: 24px; border-radius: 50%; background: #FFF; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; -webkit-appearance: none; margin-top: -9px; border: 1px solid var(--border); }
-        .slider-value { width: 20%; text-align: right; font-weight: 600; color: var(--text-soft); }
+        .input-group { 
+            background: var(--surface-2); 
+            padding: 16px; 
+            border-radius: 12px; 
+            border: 1px solid var(--border); 
+        }
+        
+        .input-group label { 
+            display: block; 
+            color: var(--text-soft); 
+            font-size: 0.8rem; 
+            text-transform: uppercase; 
+            font-weight: 600; 
+            margin-bottom: 8px; 
+        }
+        
+        .input-group input[type="number"] { 
+            width: 100%; 
+            background: transparent; 
+            border: none; 
+            color: var(--accent-primary); 
+            font-size: 1.8rem; 
+            font-weight: 700; 
+            outline: none; 
+        }
 
+        /* ── Resultados ── */
         .resultados-container h3 { font-size: 1rem; margin-bottom: 16px; color: var(--text-soft); text-transform: uppercase; letter-spacing: 1px; }
         .resultado-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 1.05rem; }
         .resultado-item:last-child { border-bottom: none; }
@@ -186,26 +211,24 @@
             </div>
         </div>
 
-        <div class="sliders-container">
-            <div class="slider-row">
-                <div class="slider-label">Água</div>
-                <div class="slider-input"><input type="range" id="slider-agua" min="50" max="100" step="1"></div>
-                <div class="slider-value" id="val-agua">0%</div>
-            </div>
-            <div class="slider-row">
-                <div class="slider-label">Sal</div>
-                <div class="slider-input"><input type="range" id="slider-sal" min="0" max="5" step="0.1"></div>
-                <div class="slider-value" id="val-sal">0%</div>
-            </div>
-            <div class="slider-row">
-                <div class="slider-label">Fermento</div>
-                <div class="slider-input"><input type="range" id="slider-fermento" min="0" max="3" step="0.1"></div>
-                <div class="slider-value" id="val-fermento">0%</div>
-            </div>
-            <div class="slider-row">
-                <div class="slider-label">Azeite</div>
-                <div class="slider-input"><input type="range" id="slider-azeite" min="0" max="10" step="0.5"></div>
-                <div class="slider-value" id="val-azeite">0%</div>
+        <div class="ingredientes-section">
+            <div class="header-grid">
+                <div class="input-group">
+                    <label>Água (%)</label>
+                    <input type="number" id="input-agua" min="0" step="1">
+                </div>
+                <div class="input-group">
+                    <label>Sal (%)</label>
+                    <input type="number" id="input-sal" min="0" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label>Fermento (%)</label>
+                    <input type="number" id="input-fermento" min="0" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label>Azeite (%)</label>
+                    <input type="number" id="input-azeite" min="0" step="0.1">
+                </div>
             </div>
         </div>
 
@@ -226,12 +249,11 @@
 
     <script>
         // ── ESTADO DA APLICAÇÃO ──
-        // Array com todas as nossas receitas
         let receitas = [
             { id: 1, nome: "Pizza Napolitana", bolas: 4, peso: 250, agua: 65, sal: 2.5, fermento: 0.3, azeite: 0 },
             { id: 2, nome: "Massa Pan", bolas: 2, peso: 400, agua: 70, sal: 2.0, fermento: 1.0, azeite: 5.0 }
         ];
-        let receitaAtivaId = 1; // Qual receita estamos a ver agora?
+        let receitaAtivaId = 1;
 
         // ── REFERÊNCIAS DO DOM ──
         const UI = {
@@ -243,15 +265,11 @@
             bolas: document.getElementById('input-bolas'),
             peso: document.getElementById('input-peso'),
             
-            agua: document.getElementById('slider-agua'),
-            sal: document.getElementById('slider-sal'),
-            fermento: document.getElementById('slider-fermento'),
-            azeite: document.getElementById('slider-azeite'),
-            
-            valAgua: document.getElementById('val-agua'),
-            valSal: document.getElementById('val-sal'),
-            valFermento: document.getElementById('val-fermento'),
-            valAzeite: document.getElementById('val-azeite'),
+            // Agora apontam para os novos inputs de número
+            agua: document.getElementById('input-agua'),
+            sal: document.getElementById('input-sal'),
+            fermento: document.getElementById('input-fermento'),
+            azeite: document.getElementById('input-azeite'),
             
             resTotal: document.getElementById('res-total'),
             resFarinha: document.getElementById('res-farinha'),
@@ -262,15 +280,13 @@
         };
 
         // ── FUNÇÕES DE GESTÃO DE ABAS ──
-
         function renderizarAbas() {
-            UI.tabsContainer.innerHTML = ''; // Limpar abas atuais
+            UI.tabsContainer.innerHTML = '';
 
             receitas.forEach(receita => {
                 const btn = document.createElement('button');
                 btn.className = `tab-btn ${receita.id === receitaAtivaId ? 'active' : ''}`;
                 btn.textContent = receita.nome;
-                // Ao clicar na aba, carrega a receita respetiva
                 btn.onclick = () => carregarReceita(receita.id);
                 UI.tabsContainer.appendChild(btn);
             });
@@ -282,7 +298,6 @@
             
             const receita = receitas.find(r => r.id === id);
             
-            // Preencher os inputs com os dados da receita selecionada
             UI.nome.value = receita.nome;
             UI.bolas.value = receita.bolas;
             UI.peso.value = receita.peso;
@@ -291,13 +306,13 @@
             UI.fermento.value = receita.fermento;
             UI.azeite.value = receita.azeite;
 
-            renderizarAbas(); // Atualiza a aba selecionada visualmente
-            calcularReceita(); // Calcula a matemática
+            renderizarAbas();
+            calcularReceita();
         }
 
         function criarNovaReceita() {
             if (navigator.vibrate) navigator.vibrate(20);
-            const novoId = Date.now(); // Gera um ID único baseado no tempo
+            const novoId = Date.now();
             const novaReceita = {
                 id: novoId,
                 nome: "Nova Receita",
@@ -305,7 +320,7 @@
             };
             receitas.push(novaReceita);
             carregarReceita(novoId);
-            UI.tabsContainer.scrollLeft = UI.tabsContainer.scrollWidth; // Faz scroll para a nova aba
+            UI.tabsContainer.scrollLeft = UI.tabsContainer.scrollWidth;
         }
 
         function apagarReceitaAtual() {
@@ -315,12 +330,11 @@
             }
             if (confirm("Tens a certeza que queres apagar esta receita?")) {
                 receitas = receitas.filter(r => r.id !== receitaAtivaId);
-                carregarReceita(receitas[0].id); // Volta para a primeira receita da lista
+                carregarReceita(receitas[0].id);
             }
         }
 
         // ── FUNÇÕES DE CÁLCULO E SINCRONIZAÇÃO ──
-
         function formataGrama(valor) {
             return Number(valor.toFixed(1)) + 'g';
         }
@@ -329,12 +343,12 @@
             // 1. Obter valores do DOM
             const qtdBolas = parseInt(UI.bolas.value) || 1;
             const pesoBola = parseInt(UI.peso.value) || 1;
-            const percAgua = parseFloat(UI.agua.value);
-            const percSal = parseFloat(UI.sal.value);
-            const percFermento = parseFloat(UI.fermento.value);
-            const percAzeite = parseFloat(UI.azeite.value);
+            const percAgua = parseFloat(UI.agua.value) || 0;
+            const percSal = parseFloat(UI.sal.value) || 0;
+            const percFermento = parseFloat(UI.fermento.value) || 0;
+            const percAzeite = parseFloat(UI.azeite.value) || 0;
 
-            // 2. Guardar as alterações no objeto da receita ativa (Sincronização)
+            // 2. Guardar as alterações no objeto da receita ativa
             const receitaAtiva = receitas.find(r => r.id === receitaAtivaId);
             receitaAtiva.bolas = qtdBolas;
             receitaAtiva.peso = pesoBola;
@@ -343,18 +357,12 @@
             receitaAtiva.fermento = percFermento;
             receitaAtiva.azeite = percAzeite;
 
-            // 3. Atualizar etiquetas (labels) dos sliders
-            UI.valAgua.textContent = percAgua + '%';
-            UI.valSal.textContent = percSal.toFixed(1) + '%';
-            UI.valFermento.textContent = percFermento.toFixed(1) + '%';
-            UI.valAzeite.textContent = percAzeite.toFixed(1) + '%';
-
-            // 4. Matemática de Padeiro
+            // 3. Matemática de Padeiro
             const massaTotal = qtdBolas * pesoBola;
             const somaPercentagens = 1 + (percAgua/100) + (percSal/100) + (percFermento/100) + (percAzeite/100);
             const pesoFarinha = massaTotal / somaPercentagens;
 
-            // 5. Renderizar na Tabela
+            // 4. Renderizar na Tabela
             UI.resTotal.textContent = formataGrama(massaTotal);
             UI.resFarinha.textContent = formataGrama(pesoFarinha);
             UI.resAgua.textContent = formataGrama(pesoFarinha * (percAgua / 100));
@@ -364,29 +372,24 @@
         }
 
         // ── EVENT LISTENERS (Ações do Utilizador) ──
-
-        // Sincronizar mudança de Nome da Receita
         UI.nome.addEventListener('input', (e) => {
             const receitaAtiva = receitas.find(r => r.id === receitaAtivaId);
             receitaAtiva.nome = e.target.value;
-            // Atualiza apenas o texto da aba ativa para não perder o foco do teclado
             document.querySelector('.tab-btn.active').textContent = receitaAtiva.nome;
         });
 
         // Atualiza a matemática em tempo real ao mexer nos inputs
         [UI.bolas, UI.peso, UI.agua, UI.sal, UI.fermento, UI.azeite].forEach(input => {
             input.addEventListener('input', () => {
-                if (navigator.vibrate && input.type === 'range') navigator.vibrate(10);
                 calcularReceita();
             });
         });
 
-        // Botões
         UI.btnNova.addEventListener('click', criarNovaReceita);
         UI.btnApagar.addEventListener('click', apagarReceitaAtual);
 
         // ── ARRANQUE ──
-        carregarReceita(1); // Arranca a app com a receita de ID 1
+        carregarReceita(1);
 
     </script>
 </body>
