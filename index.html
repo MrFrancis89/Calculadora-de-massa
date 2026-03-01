@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Calculadora de Pizza - StockFlow Pro</title>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+        :root {
+            --bg: #0D0D0F;
+            --bg-elevated: #1A1A1E;
+            --surface: #222226;
+            --text: #F0F0F3;
+            --text-secondary: #8A8A8F;
+            --border: rgba(255,255,255,0.14);
+            --accent: #FF9F0A; 
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Container Principal */
+        .pizza-calc-container {
+            background-color: var(--bg-elevated);
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Inputs de Quantidade e Peso */
+        .pizza-controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .pizza-input-card {
+            background-color: var(--surface);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border);
+        }
+
+        .pizza-input-card label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .pizza-input-card input {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 1.4rem;
+            font-weight: 700;
+            outline: none;
+            width: 100%;
+        }
+
+        /* Visor Total Massa */
+        .pizza-total-display {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pizza-total-display .label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .pizza-total-display .value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        /* Área de Sliders de Percentagem */
+        .pizza-slider-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .pizza-slider-item label {
+            width: 35%;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .pizza-slider-item .value-display {
+            width: 20%;
+            text-align: right;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* Estilização Nativa do Slider (Range) */
+        .pizza-slider-item input[type=range] {
+            -webkit-appearance: none;
+            width: 40%;
+            background: transparent;
+        }
+        .pizza-slider-item input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            background: var(--surface);
+            border-radius: 3px;
+        }
+        .pizza-slider-item input[type=range]::-webkit-slider-thumb {
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #FFFFFF;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -9px;
+        }
+
+        /* Tabela de Receita Final */
+        .pizza-receita-area {
+            margin-top: 30px;
+            background-color: var(--surface);
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .pizza-receita-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .pizza-receita-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .pizza-btn-reset {
+            background: rgba(255, 159, 10, 0.1);
+            border: none;
+            color: var(--accent);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+        .pizza-btn-reset:active {
+            background: rgba(255, 159, 10, 0.3);
+        }
+
+        .pizza-receita-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+        .pizza-receita-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .pizza-receita-row .item-value {
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="pizza-calc-container">
+        
+        <div class="pizza-controls-grid">
+            <div class="pizza-input-card">
+                <label for="in_bolas">Qtd. Bolas</label>
+                <input type="number" id="in_bolas" value="4" min="1">
+            </div>
+            <div class="pizza-input-card">
+                <label for="in_peso_bola">Peso (g)</label>
+                <input type="number" id="in_peso_bola" value="250" min="10" step="10">
+            </div>
+        </div>
+
+        <div class="pizza-total-display">
+            <div class="label">Massa Total</div>
+            <div id="dis_total_massa" class="value">1000g</div>
+        </div>
+
+        <div class="pizza-slider-group">
+            <div class="pizza-slider-item">
+                <label>💧 Água</label>
+                <input type="range" id="in_agua_rng" min="50" max="90" value="65" step="1">
+                <div id="dis_agua_val" class="value-display">65%</div>
+            </div>
+            <div class="pizza-slider-item">
+                <label>🧂 Sal</label>
+                <input type="range" id="in_sal_rng" min="0" max="5" value="2.5" step="0.1">
+                <div id="dis_sal_val" class="value-display">2.5%</div>
+            </div>
+            <div class="pizza-slider-item">
+                <label>🍞 Fermento</label>
+                <input type="range" id="in_fermento_rng" min="0.1" max="3" value="0.5" step="0.1">
+                <div id="dis_fermento_val" class="value-display">0.5%</div>
+            </div>
+            <div class="pizza-slider-item">
+                <label>🫒 Azeite</label>
+                <input type="range" id="in_azeite_rng" min="0" max="10" value="2" step="0.5">
+                <div id="dis_azeite_val" class="value-display">2.0%</div>
+            </div>
+        </div>
+
+        <div class="pizza-receita-area">
+            <div class="pizza-receita-header">
+                <h3>Receita (g)</h3>
+                <button id="btn_reset_pizza" class="pizza-btn-reset">Resetar</button>
+            </div>
+            <div class="pizza-receita-row">
+                <span class="item-name">Farinha de Trigo</span>
+                <span id="rec_farinha" class="item-value">0g</span>
+            </div>
+            <div class="pizza-receita-row">
+                <span class="item-name">Água</span>
+                <span id="rec_agua" class="item-value">0g</span>
+            </div>
+            <div class="pizza-receita-row">
+                <span class="item-name">Sal</span>
+                <span id="rec_sal" class="item-value">0g</span>
+            </div>
+            <div class="pizza-receita-row">
+                <span class="item-name">Fermento</span>
+                <span id="rec_fermento" class="item-value">0g</span>
+            </div>
+            <div class="pizza-receita-row">
+                <span class="item-name">Azeite</span>
+                <span id="rec_azeite" class="item-value">0g</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ── Helpers e Utilidades ───────────────────────────────────────────────
+
+        // Simula o feedback tátil do seu arquivo utils.js
+        function darFeedback() {
+            if (navigator.vibrate) navigator.vibrate(10);
+        }
+
+        // Formata os gramas evitando dizimas gigantes (ex: 14.700000001 -> 14.7)
+        function formataGrama(valor) {
+            // Arredonda para 1 casa decimal de forma segura
+            const valorArredondado = Math.round(valor * 10) / 10;
+            // Retira a casa decimal se for .0 (ex: 15.0 vira 15)
+            return (valorArredondado % 1 === 0 ? valorArredondado : valorArredondado.toFixed(1)) + 'g';
+        }
+
+        // ── Estado e Configurações ─────────────────────────────────────────────
+        const definicoesPadrao = {
+            bolas: 4,
+            pesoBola: 250,
+            agua: 65,
+            sal: 2.5,
+            fermento: 0.5,
+            azeite: 2
+        };
+
+        // Clonamos as definições padrão para criar o estado atual
+        let estado = { ...definicoesPadrao };
+
+        // Mapa que liga o ID do HTML à chave de estado
+        const mapaInputs = {
+            'in_bolas': 'bolas',
+            'in_peso_bola': 'pesoBola',
+            'in_agua_rng': 'agua',
+            'in_sal_rng': 'sal',
+            'in_fermento_rng': 'fermento',
+            'in_azeite_rng': 'azeite'
+        };
+
+        // ── Lógica Principal ───────────────────────────────────────────────────
+
+        function inicializar() {
+            // 1. Ouvintes de eventos para todos os inputs e sliders
+            for (const [idInput, chave] of Object.entries(mapaInputs)) {
+                const elemento = document.getElementById(idInput);
+                elemento.addEventListener('input', (evento) => {
+                    let valor = parseFloat(evento.target.value) || 0;
+                    
+                    // REVISÃO: Proteção contra números menores que 1 nos campos de texto
+                    if (chave === 'bolas' || chave === 'pesoBola') {
+                        valor = Math.max(1, valor);
+                    }
+
+                    estado[chave] = valor;
+                    darFeedback();
+                    calcularERenderizar();
+                });
+            }
+
+            // 2. Ouvinte do botão de Reset
+            document.getElementById('btn_reset_pizza').addEventListener('click', () => {
+                estado = { ...definicoesPadrao };
+                sincronizarInputsComEstado();
+                darFeedback();
+                calcularERenderizar();
+            });
+
+            // 3. Primeira execução ao abrir a página
+            sincronizarInputsComEstado();
+            calcularERenderizar();
+        }
+
+        // Atualiza os <input> físicos para refletirem o objeto 'estado'
+        function sincronizarInputsComEstado() {
+            for (const [idInput, chave] of Object.entries(mapaInputs)) {
+                document.getElementById(idInput).value = estado[chave];
+            }
+        }
+
+        // Faz a matemática e atualiza o texto na tela
+        function calcularERenderizar() {
+            // MATEMÁTICA DE PADEIRO:
+            // 1. Calcula o peso total desejado
+            const totalMassa = estado.bolas * estado.pesoBola;
+            
+            // 2. A farinha é a base (100% ou 1). Somamos as percentagens dos outros itens.
+            const somaPercentagens = 1 + (estado.agua/100) + (estado.sal/100) + (estado.fermento/100) + (estado.azeite/100);
+            
+            // 3. Descobre o peso da farinha dividindo o total pela soma das percentagens
+            const pesoFarinha = totalMassa / somaPercentagens;
+
+            // ATUALIZAÇÃO DA INTERFACE (DOM):
+            // Atualiza os visores ao lado dos sliders (usando textContent para performance)
+            document.getElementById('dis_agua_val').textContent = `${estado.agua}%`;
+            document.getElementById('dis_sal_val').textContent = `${estado.sal.toFixed(1)}%`;
+            document.getElementById('dis_fermento_val').textContent = `${estado.fermento.toFixed(1)}%`;
+            document.getElementById('dis_azeite_val').textContent = `${estado.azeite.toFixed(1)}%`;
+
+            // Atualiza o Visor Gigante do Total da Massa
+            document.getElementById('dis_total_massa').textContent = formataGrama(totalMassa);
+
+            // Atualiza a Tabela de Receita calculando o peso de cada ingrediente
+            document.getElementById('rec_farinha').textContent = formataGrama(pesoFarinha);
+            document.getElementById('rec_agua').textContent = formataGrama(pesoFarinha * (estado.agua/100));
+            document.getElementById('rec_sal').textContent = formataGrama(pesoFarinha * (estado.sal/100));
+            document.getElementById('rec_fermento').textContent = formataGrama(pesoFarinha * (estado.fermento/100));
+            document.getElementById('rec_azeite').textContent = formataGrama(pesoFarinha * (estado.azeite/100));
+        }
+
+        // Espera o HTML carregar completamente antes de iniciar o JavaScript
+        document.addEventListener('DOMContentLoaded', inicializar);
+    </script>
+</body>
+</html>
