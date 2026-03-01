@@ -1,278 +1,809 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Calculadora de Receitas Planilha</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Calculadora de Massa de Pizza</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & TOKENS ────────────────────────────────────────── */
+:root {
+  --red:#D62828; --rdk:#7A1010;
+  --or:#F77F00;  --yl:#F5C518;
+  --bg:#130C04;  --sf:#1E1008; --s2:#2A1610; --s3:#341D12;
+  --tx:#F5ECD7;  --mu:#9A8060; --di:#4A3020;
+  --bd:#3D2208;  --b2:#5A3312;
+  --bl:#1B4FBF;  --bl2:#2D6BE4; --pu:#5A2080;
+  --gn:#1C7A40;
+  --r:12px; --ri:8px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html { -webkit-text-size-adjust:100%; }
+body {
+  font-family:'Barlow', sans-serif;
+  background:var(--bg); color:var(--tx);
+  min-height:100vh;
+  background-image:
+    radial-gradient(ellipse at 20% 40%, rgba(214,40,40,.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 10%, rgba(247,127,0,.05) 0%, transparent 50%);
+}
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+/* ── HEADER ─────────────────────────────────────────────────── */
+.hdr {
+  background:linear-gradient(135deg, var(--rdk) 0%, #0E0604 50%, var(--sf) 100%);
+  border-bottom:3px solid var(--or);
+  padding:12px 16px;
+  display:flex; align-items:center; gap:12px;
+  position:sticky; top:0; z-index:200;
+  box-shadow:0 4px 24px rgba(0,0,0,.5);
+}
+.hico {
+  width:44px; height:44px; min-width:44px;
+  background:linear-gradient(135deg, var(--or), var(--red));
+  border-radius:50%; display:flex;
+  align-items:center; justify-content:center;
+  font-size:22px;
+  box-shadow:0 0 16px rgba(247,127,0,.4);
+}
+.htxt h1 {
+  font-family:'Oswald', sans-serif; font-size:17px; font-weight:700;
+  letter-spacing:2px; text-transform:uppercase; line-height:1.2;
+}
+.htxt p {
+  font-size:10px; color:var(--or); letter-spacing:1px;
+  text-transform:uppercase; margin-top:2px;
+}
 
-        /* ── Variáveis de Cores baseadas na imagem ── */
-        :root {
-            --bg-geral: #2D2D2D;
-            --azul-cabecalho: #2A4875;
-            --castanho: #8B4513;
-            --amarelo-farinha: #FFC000;
-            --roxo-ingrediente: #7030A0;
-            --cinza-percentagem: #595959;
-            --azul-claro-gramas: #4A7EBB;
-            --borda: #FFFFFF;
-        }
+/* ── TABS ────────────────────────────────────────────────────── */
+.tbar {
+  background:var(--sf); border-bottom:2px solid var(--bd);
+  padding:0 16px; display:flex; align-items:flex-end; gap:3px;
+  overflow-x:auto; overflow-y:visible; -webkit-overflow-scrolling:touch;
+}
+.tbar::-webkit-scrollbar { height:0; }
+.tab {
+  display:flex; align-items:center; gap:6px; padding:9px 13px;
+  background:var(--s2); border:1px solid var(--bd); border-bottom:none;
+  border-radius:8px 8px 0 0; cursor:pointer;
+  font-size:13px; font-weight:500; color:var(--mu);
+  white-space:nowrap; user-select:none;
+  min-width:0; flex-shrink:0; -webkit-tap-highlight-color:transparent;
+}
+.tab.on {
+  background:var(--bg); color:var(--or);
+  border-color:var(--or); border-bottom-color:var(--bg);
+}
+.tname {
+  background:transparent; border:none; outline:none;
+  color:inherit; font-family:'Barlow', sans-serif;
+  font-size:13px; font-weight:500; width:88px;
+  pointer-events:none;
+}
+.tab.on .tname { pointer-events:auto; }
+.tx {
+  background:none; border:none; cursor:pointer; color:var(--di);
+  font-size:18px; line-height:1; padding:0 1px;
+  display:none; flex-shrink:0; -webkit-tap-highlight-color:transparent;
+}
+.tab.on .tx { display:block; }
+.tadd {
+  padding:8px 13px; background:transparent;
+  border:1px dashed var(--bd); border-bottom:none;
+  border-radius:8px 8px 0 0; cursor:pointer;
+  color:var(--mu); font-size:22px; line-height:1;
+  flex-shrink:0; -webkit-tap-highlight-color:transparent;
+}
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Roboto', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+/* ── PAGE ────────────────────────────────────────────────────── */
+.page { padding:14px 14px 40px; max-width:700px; margin:0 auto; padding-bottom:max(40px, env(safe-area-inset-bottom, 40px)); }
 
-        body {
-            background-color: var(--bg-geral);
-            color: white;
-            padding: 15px 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+/* ── TOAST ───────────────────────────────────────────────────── */
+.toast {
+  position:fixed; bottom:28px; left:50%;
+  transform:translateX(-50%) translateY(70px);
+  background:var(--gn); color:#fff; padding:11px 22px;
+  border-radius:10px; font-weight:600; font-size:13px;
+  opacity:0; transition:all .3s; z-index:999; pointer-events:none;
+  white-space:nowrap; box-shadow:0 4px 20px rgba(0,0,0,.5);
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
-        .planilha-container {
-            width: 100%;
-            max-width: 500px;
-            background-color: #333;
-            padding: 10px;
-        }
+/* ── SUMMARY STRIP ───────────────────────────────────────────── */
+.sum-strip {
+  display:flex; gap:8px; margin-bottom:16px;
+  overflow-x:auto; -webkit-overflow-scrolling:touch;
+}
+.sum-strip::-webkit-scrollbar { height:0; }
+.sc {
+  background:var(--sf); border:1px solid var(--bd);
+  border-radius:var(--r); padding:10px 14px; text-align:center;
+  min-width:0; flex:1; flex-shrink:0;
+}
+.sc.hi { border-color:var(--or); }
+.sc.warn { border-color:#9A6010; }
+.sv {
+  font-family:'Oswald', sans-serif; font-size:17px;
+  font-weight:700; color:var(--or); line-height:1.2;
+  white-space:nowrap;
+}
+.sc.warn .sv { color:#E09030; }
+.sl { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:.8px; color:var(--mu); margin-top:2px; }
 
-        /* ── Cabeçalho e Nova Receita ── */
-        .titulo-principal {
-            background-color: var(--azul-cabecalho);
-            text-align: center;
-            padding: 12px;
-            font-weight: 700;
-            border: 1px solid var(--borda);
-            margin-bottom: 10px;
-        }
+/* ── SECTION CARD ────────────────────────────────────────────── */
+.sec { background:var(--sf); border:1px solid var(--bd); border-radius:var(--r); overflow:hidden; margin-bottom:12px; }
+.sec-hdr {
+  padding:10px 14px; font-family:'Oswald', sans-serif; font-size:12px;
+  letter-spacing:2px; font-weight:600; text-transform:uppercase;
+  color:#fff; display:flex; align-items:center; gap:8px;
+}
+.sec-hdr.or { background:linear-gradient(90deg, var(--or), var(--red)); }
+.sec-hdr.bl { background:linear-gradient(90deg, var(--bl2), var(--pu)); }
+.sec-hdr.gn { background:linear-gradient(90deg, var(--gn), #0D5028); }
+.sec-hdr.yl { background:linear-gradient(90deg, #A08000, #6A5000); }
+.sec-hdr.dk { background:linear-gradient(90deg, #1A0C04, #2A1610); border-bottom:1px solid var(--bd); }
+.sec-body { padding:12px 14px; }
 
-        .linha-alvo {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 20px;
-        }
+/* ── FIELD (label + input+select) ───────────────────────────── */
+.field { margin-bottom:10px; }
+.field:last-child { margin-bottom:0; }
+.field-lbl {
+  font-size:10px; font-weight:600; text-transform:uppercase;
+  letter-spacing:1px; color:var(--mu); margin-bottom:4px; display:block;
+}
+.pill {
+  display:flex; border:1px solid var(--bd); border-radius:var(--ri);
+  overflow:hidden; background:var(--s2); transition:border-color .2s;
+}
+.pill:focus-within { border-color:var(--or); }
+.pill.ro { opacity:.6; }
+.pill.ro .psel { pointer-events:none; }
+.pill-in {
+  flex:1; min-width:0; background:transparent; border:none; outline:none;
+  padding:9px 10px; color:var(--tx);
+  font-family:'Barlow', sans-serif; font-size:14px; font-weight:500;
+  text-align:right; appearance:none;
+}
+.pill-in:disabled { color:var(--mu); }
+.psel {
+  background:var(--s3); border:none; border-left:1px solid var(--b2);
+  color:var(--or); font-family:'Barlow', sans-serif;
+  font-size:12px; font-weight:700; outline:none;
+  padding:0 6px 0 8px; min-width:54px; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23F77F00'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 5px center;
+  padding-right:20px; cursor:pointer;
+}
+.psel option { background:#2A1610; color:#F5ECD7; }
+.field-row { display:flex; gap:10px; }
+.field-row .field { flex:1; min-width:0; }
 
-        .linha-alvo .etiqueta {
-            flex: 1;
-            background-color: var(--castanho);
-            text-align: center;
-            padding: 8px;
-            font-weight: 700;
-            border: 1px solid var(--borda);
-        }
+/* ── INGREDIENT CARD ─────────────────────────────────────────── */
+.ing-card { background:var(--s2); border:1px solid var(--bd); border-radius:var(--ri); padding:10px 12px; margin-bottom:8px; }
+.ing-card:last-child { margin-bottom:0; }
+.ing-top { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.ing-name {
+  flex:1; min-width:0; background:transparent; border:none; border-bottom:1px solid var(--bd);
+  outline:none; color:var(--tx); font-family:'Barlow', sans-serif; font-size:14px; font-weight:500;
+  padding:3px 2px 4px; appearance:none; transition:border-color .2s;
+}
+.ing-name:focus { border-bottom-color:var(--or); }
+.ing-del {
+  background:none; border:none; cursor:pointer; color:var(--di);
+  padding:4px 6px; flex-shrink:0; display:flex; align-items:center;
+}
+.ing-del:active { color:var(--red); }
+.ing-bottom { display:flex; align-items:center; gap:6px; }
+.ing-bottom .pill { flex:1; min-width:0; }
 
-        .linha-alvo input {
-            width: 120px;
-            background-color: var(--azul-claro-gramas);
-            color: white;
-            font-weight: 700;
-            text-align: center;
-            border: 1px solid var(--borda);
-            outline: none;
-            font-size: 1rem;
-        }
+/* Badges */
+.badge {
+  display:flex; align-items:center; justify-content:center;
+  padding:5px 8px; border-radius:20px; font-size:11px; font-weight:600;
+  white-space:nowrap; flex-shrink:0;
+}
+.bor { background:rgba(247,127,0,.18); color:#F9A030; }
+.bbl { background:rgba(45,107,228,.18); color:#7AABF5; }
+.bgr { background:rgba(40,168,87,.15); color:#4EBB7A; }
 
-        /* ── Tabela Principal ── */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
+/* ── FLOUR ROW (virtual) ─────────────────────────── */
+.flour-row {
+  background:rgba(247,127,0,.08); border:1px solid rgba(247,127,0,.2);
+  border-radius:var(--ri); padding:10px 12px; margin-bottom:8px;
+}
+.flour-title {
+  font-family:'Oswald', sans-serif; font-size:13px; font-weight:600;
+  letter-spacing:1.5px; text-transform:uppercase; color:var(--or); margin-bottom:8px;
+}
+.flour-bottom { display:flex; align-items:center; gap:6px; }
+.flour-bottom .pill { flex:1; min-width:0; }
 
-        th, td {
-            border: 1px solid var(--borda);
-            text-align: center;
-            vertical-align: middle;
-            height: 35px;
-        }
+/* ── TOTALS ROW ──────────────────────────────────────────────── */
+.tot-row {
+  background:linear-gradient(90deg, rgba(214,40,40,.15), rgba(247,127,0,.07));
+  border-top:2px solid var(--or); padding:10px 14px;
+  display:flex; align-items:center; gap:8px;
+}
+.tot-lbl {
+  font-family:'Oswald', sans-serif; font-size:12px; font-weight:700;
+  letter-spacing:1px; text-transform:uppercase; color:var(--or); flex:1;
+}
+.tot-val { font-family:'Oswald', sans-serif; font-size:15px; font-weight:700; color:var(--yl); white-space:nowrap; }
 
-        th {
-            background-color: var(--castanho);
-            font-weight: 700;
-            padding: 5px;
-        }
+/* ── READ-ONLY VALUE BOX ─────────────────────────────────────── */
+.ro-box {
+  padding:9px 12px; background:rgba(0,0,0,.25); border:1px solid var(--bd);
+  border-radius:var(--ri); font-family:'Oswald', sans-serif; font-size:15px;
+  font-weight:700; color:var(--yl); letter-spacing:.5px; text-align:right;
+}
+.ro-box.accent { color:var(--or); font-size:18px; }
 
-        /* Cores das colunas e linhas */
-        .col-nome input { text-align: right; padding-right: 10px; }
-        .col-peso input { text-align: center; }
-        .col-perc { background-color: var(--cinza-percentagem); font-weight: 700; }
-        .col-gramas { background-color: var(--azul-claro-gramas); font-weight: 700; }
+/* ── DIVIDER ─────────────────────────────────────────────────── */
+.div-line { display:flex; align-items:center; gap:10px; margin:10px 0 6px; }
+.div-line::before, .div-line::after { content:''; flex:1; height:1px; background:var(--bd); }
+.div-line span { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--di); white-space:nowrap; }
 
-        .linha-farinha .col-nome, .linha-farinha .col-peso {
-            background-color: var(--amarelo-farinha);
-            color: black;
-            font-weight: 700;
-        }
-        .linha-farinha input { color: black; font-weight: 700; }
+/* ── TOGGLE BUTTONS ──────────────────────────────────────────── */
+.tog-row { display:flex; gap:8px; margin-bottom:10px; }
+.tog-btn {
+  flex:1; background:var(--s2); border:1px solid var(--bd);
+  border-radius:var(--ri); padding:9px 8px; cursor:pointer;
+  font-family:'Barlow', sans-serif; font-size:12px; font-weight:600;
+  letter-spacing:.5px; color:var(--mu); text-align:center; transition:all .2s;
+}
+.tog-btn.on {
+  background:linear-gradient(135deg, var(--or), var(--red));
+  color:#fff; border-color:var(--or);
+}
 
-        .linha-ingrediente .col-nome, .linha-ingrediente .col-peso {
-            background-color: var(--roxo-ingrediente);
-        }
+/* ── ACTION BUTTONS ──────────────────────────────────────────── */
+.act-row { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.btn {
+  padding:10px 16px; border-radius:var(--ri); border:none; cursor:pointer;
+  font-family:'Barlow', sans-serif; font-size:12px; font-weight:600;
+  letter-spacing:.8px; text-transform:uppercase; display:flex;
+  align-items:center; gap:5px; white-space:nowrap; transition:all .2s;
+}
+.btn-p { background:linear-gradient(135deg, var(--or), var(--red)); color:#fff; }
+.btn-s { background:var(--s2); color:var(--mu); border:1px solid var(--bd); }
+.btn-s:active { border-color:var(--or); color:var(--tx); }
+.btn-d { background:var(--s2); color:#D07070; border:1px solid #5A2020; }
+.btn-d:active { background:rgba(214,40,40,.15); }
 
-        /* ── Inputs dentro da tabela ── */
-        table input {
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            border: none;
-            color: white;
-            outline: none;
-            font-family: inherit;
-            font-size: inherit;
-        }
-        table input::placeholder { color: rgba(255,255,255,0.4); }
+/* ── NOTES ───────────────────────────────────────────────────── */
+.notes {
+  width:100%; background:var(--s2); border:1px solid var(--bd);
+  border-radius:var(--ri); padding:12px; color:var(--tx);
+  font-family:'Barlow', sans-serif; font-size:13px;
+  resize:vertical; outline:none; min-height:80px; line-height:1.5;
+  appearance:none; transition:border-color .2s;
+}
+.notes:focus { border-color:var(--or); }
 
-        /* ── Rodapé (Totais) ── */
-        tfoot td {
-            background-color: var(--castanho);
-            font-weight: 700;
-            padding: 8px 5px;
-        }
-        .footer-label {
-            text-align: left;
-            padding-left: 10px;
-            font-size: 0.85rem;
-        }
-    </style>
+/* ── MODAL ───────────────────────────────────────────────────── */
+.mbg {
+  display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+  background:rgba(0,0,0,.76); z-index:500;
+  align-items:center; justify-content:center;
+}
+.mbg.open { display:flex; }
+.modal {
+  background:var(--sf); border:1px solid var(--b2); border-radius:16px;
+  padding:24px; min-width:280px; max-width:88vw; box-shadow:0 20px 60px rgba(0,0,0,.6);
+}
+.modal h2 { font-family:'Oswald', sans-serif; font-size:17px; letter-spacing:1.5px; margin-bottom:10px; color:var(--or); }
+.modal p { font-size:14px; color:var(--mu); margin-bottom:20px; line-height:1.5; }
+.m-btns { display:flex; gap:10px; justify-content:flex-end; }
+</style>
 </head>
 <body>
 
-    <div class="planilha-container">
-        
-        <div class="titulo-principal">CALCULADORA DE RECEITAS</div>
+<header class="hdr">
+  <div class="hico">🍕</div>
+  <div class="htxt">
+    <h1>Calculadora de Massa</h1>
+    <p>Sistema de Receitas — Pizza &amp; Padaria</p>
+  </div>
+</header>
 
-        <div class="linha-alvo">
-            <div class="etiqueta">NOVA RECEITA</div>
-            <input type="number" id="input-alvo-farinha" value="10000">
-        </div>
+<div class="tbar" id="tbar"></div>
+<div class="page" id="page"></div>
+<div class="toast" id="toast"></div>
 
-        <table id="tabela-ingredientes">
-            <thead>
-                <tr>
-                    <th style="width: 45%;">INGREDIENTES</th>
-                    <th style="width: 18%;">PESO</th>
-                    <th style="width: 18%;">%</th>
-                    <th style="width: 19%;">GRAMAS</th>
-                </tr>
-            </thead>
-            <tbody id="lista-ingredientes">
-                </tbody>
-            <tfoot>
-                <tr>
-                    <td class="footer-label">PESO TOTAL DA RECEITA</td>
-                    <td id="total-peso">0</td>
-                    <td id="total-perc">0%</td>
-                    <td id="total-gramas">0</td>
-                </tr>
-            </tfoot>
-        </table>
+<div class="mbg" id="mbg">
+  <div class="modal">
+    <h2 id="mTitle"></h2>
+    <p id="mMsg"></p>
+    <div class="m-btns">
+      <button class="btn btn-s" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-d" id="mOk">Confirmar</button>
+    </div>
+  </div>
+</div>
 
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════
+// ARQUITETURA CORE
+// ═══════════════════════════════════════════════════
+const UNITS = ['g', 'kg', 'ml', 'L', 'un'];
+
+const toG = (val, u) => (u === 'kg' || u === 'L') ? val * 1000 : val;
+const fromG = (g, u) => (u === 'kg' || u === 'L') ? (g || 0) / 1000 : (g || 0);
+
+// Formatação para visualização (com separador de milhares)
+const fmt = (g, u) => {
+  const v = fromG(g, u);
+  return (u === 'kg' || u === 'L') 
+    ? v.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })
+    : Math.round(v).toLocaleString('pt-BR');
+};
+
+// Formatação para edição (remove pontos de milhar para não confundir o parser)
+const fmtEdit = (g, u) => {
+  const v = fromG(g, u);
+  if (u === 'kg' || u === 'L') {
+    return v.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).replace(/\./g, '');
+  }
+  return String(Math.round(v));
+};
+
+// Parser robusto para input pt-BR
+const parseG = (raw, u) => {
+  let s = String(raw || '').trim().replace(/\s/g, '');
+  if (!s) return 0;
+  
+  const lastComma = s.lastIndexOf(',');
+  const lastDot = s.lastIndexOf('.');
+  
+  if (lastComma > -1 && lastDot > -1) {
+    s = (lastComma > lastDot) ? s.replace(/\./g, '').replace(',', '.') : s.replace(/,/g, '');
+  } else if (lastComma > -1) {
+    s = s.replace(',', '.');
+  } else if (lastDot > -1 && (u === 'g' || u === 'ml' || u === 'un')) {
+    const parts = s.split('.');
+    if (parts.length === 2 && parts[1].length === 3) s = s.replace('.', '');
+  }
+  s = s.replace(/[^\d.\-]/g, '');
+  return toG(parseFloat(s) || 0, u);
+};
+
+const pctStr = (ig, fg) => !fg ? '–' : (ig / fg * 100).toFixed(1).replace('.', ',') + ' %';
+
+// ─── LÓGICA DE NEGÓCIO E MOTOR DE CÁLCULO ────────────
+const mkRecipe = (name) => ({
+  name: name || 'Nova Receita',
+  novaG: 10000, 
+  novaU: 'g',
+  scaleMode: 'massa', // 'massa' (Massa Total) ou 'farinha' (Base Farinha)
+  blends: [
+    { name: 'Farinha 00', g: 5000, u: 'g' },
+  ],
+  ings: [
+    { name: 'Água',     g: 3000, u: 'ml' },
+    { name: 'Sal',      g: 150,  u: 'g' },
+    { name: 'Azeite',   g: 100,  u: 'ml' },
+    { name: 'Fermento', g: 15,   u: 'g' },
+  ],
+  bola: { mode: 'peso', pesoG: 250, pesoU: 'g', qtd: 0 },
+  notes: '',
+});
+
+const flourG = (r) => r.blends.reduce((s, b) => s + (b.g || 0), 0);
+const totIngG = (r) => flourG(r) + r.ings.reduce((s, i) => s + (i.g || 0), 0);
+
+// Motor Central: Calcula toda a receita com Correção de Arredondamento (Delta)
+const computeRecipe = (r) => {
+  const fg = flourG(r);
+  const tp = totIngG(r);
+  
+  // Define o fator multiplicador baseado no Modo de Escala
+  const factor = r.scaleMode === 'farinha' 
+    ? (fg ? r.novaG / fg : 0) 
+    : (tp ? r.novaG / tp : 0);
+
+  let blendsCalc = r.blends.map(b => ({ ...b, calcG: Math.round(b.g * factor) }));
+  let ingsCalc = r.ings.map(i => ({ ...i, calcG: Math.round(i.g * factor) }));
+
+  let tc = blendsCalc.reduce((s, b) => s + b.calcG, 0) + ingsCalc.reduce((s, i) => s + i.calcG, 0);
+
+  // Delta Correction: Garante que a soma bate exatamente com o alvo se escalar por Massa Total
+  if (r.scaleMode === 'massa' && factor > 0 && tc !== r.novaG) {
+    const delta = r.novaG - tc;
+    let maxObj = null;
+    let maxVal = -1;
+    
+    // Procura o ingrediente mais pesado para absorver a diferença de 1g ou 2g
+    [...blendsCalc, ...ingsCalc].forEach(item => {
+      if (item.calcG > maxVal) { maxVal = item.calcG; maxObj = item; }
+    });
+    
+    if (maxObj) {
+      maxObj.calcG += delta;
+      tc += delta;
+    }
+  }
+
+  const calcFlourG = blendsCalc.reduce((s, b) => s + b.calcG, 0);
+  const pctTotal = fg ? ((tp / fg) * 100).toFixed(1).replace('.', ',') + ' %' : '–';
+
+  // O volume disponível para fazer bolas é sempre o Total Calculado (tc)
+  let bola = { qty: 0, pesoG: 0, resto: 0 };
+  if (r.bola.mode === 'peso') {
+    bola.qty = r.bola.pesoG > 0 ? Math.floor(tc / r.bola.pesoG) : 0;
+    bola.resto = tc - (bola.qty * r.bola.pesoG);
+  } else {
+    bola.qty = r.bola.qtd || 0;
+    bola.pesoG = bola.qty > 0 ? tc / bola.qty : 0;
+  }
+
+  return { fg, tp, factor, blendsCalc, ingsCalc, tc, calcFlourG, pctTotal, bola };
+};
+
+// ─── STATE & PERSISTENCE ─────────────────────────────
+let activeTab = 0;
+let recipes = [];
+let pendingFn = null;
+
+const save = () => {
+  try {
+    localStorage.setItem('pzc6_r', JSON.stringify(recipes));
+    localStorage.setItem('pzc6_a', String(activeTab));
+  } catch(e) {}
+};
+
+const load = () => {
+  try {
+    const rd = localStorage.getItem('pzc6_r');
+    const ad = localStorage.getItem('pzc6_a');
+    if (rd) {
+      recipes = JSON.parse(rd);
+      recipes.forEach(r => {
+        if (!r.novaU) r.novaU = 'g';
+        if (!r.novaG) r.novaG = 10000;
+        if (!r.scaleMode) r.scaleMode = 'massa'; // Migração para o novo modo
+        r.blends = (r.blends || []).map(b => ({ name: b.name || 'Blend', g: b.g || b.grams || b.peso || 0, u: b.u || b.unit || 'g' }));
+        r.ings = (r.ings || r.ingredients || []).filter(i => !i.isFlour).map(i => ({ name: i.name || 'Ingrediente', g: i.g || i.grams || i.peso || 0, u: i.u || i.unit || 'g' }));
+        if (!r.bola) r.bola = { mode: 'peso', pesoG: 250, pesoU: 'g', qtd: 0 };
+        if (!r.bola.pesoU) r.bola.pesoU = 'g';
+        if (!r.notes) r.notes = '';
+      });
+    }
+    if (ad !== null) activeTab = Math.max(0, Math.min(parseInt(ad) || 0, recipes.length - 1));
+  } catch(e) {}
+  if (!recipes.length) { recipes.push(mkRecipe('Receita Padrão')); activeTab = 0; }
+};
+
+// ─── UI HELPERS ───────────────────────────────────────
+const Q = id => document.getElementById(id);
+const Qt = (id, txt) => { const e = Q(id); if (e) e.textContent = txt; };
+const Qv = (id, val) => { const e = Q(id); if (e) e.value = val; };
+const on = (id, ev, fn) => { const e = Q(id); if (e) e.addEventListener(ev, fn); };
+const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+const usel = (id, sel, dis) => `
+  <select id="${id}" class="psel" ${dis ? 'disabled' : ''}>
+    ${UNITS.map(u => `<option value="${u}" ${u === sel ? 'selected' : ''}>${u}</option>`).join('')}
+  </select>
+`;
+
+let tTimer;
+const toast = (msg, col = 'var(--gn)') => {
+  const e = Q('toast');
+  e.textContent = msg; e.style.background = col;
+  e.classList.add('show');
+  clearTimeout(tTimer);
+  tTimer = setTimeout(() => e.classList.remove('show'), 2500);
+};
+
+const openModal = (title, msg, onOk, okLbl = 'Confirmar', okCls = 'btn-d') => {
+  Qt('mTitle', title); Qt('mMsg', msg);
+  const ob = Q('mOk'); ob.textContent = okLbl; ob.className = `btn ${okCls}`;
+  pendingFn = onOk || null;
+  Q('mbg').classList.add('open');
+};
+const closeModal = () => { Q('mbg').classList.remove('open'); pendingFn = null; };
+
+Q('mOk').addEventListener('click', () => { if (pendingFn) pendingFn(); closeModal(); });
+Q('mbg').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+const deleteRecipe = (i) => {
+  if (recipes.length === 1) { openModal('Aviso', 'Necessário manter ao menos uma receita.', null, 'OK', 'btn-s'); return; }
+  const nm = recipes[i].name;
+  openModal('Excluir Receita', `Excluir "${nm}" permanentemente?`, () => {
+    recipes.splice(i, 1);
+    if (activeTab >= recipes.length) activeTab = recipes.length - 1;
+    save(); render(); toast(`"${nm}" excluída.`, 'var(--rdk)');
+  });
+};
+
+// ─── DOM BINDINGS ─────────────────────────────────────
+const bindNum = (inpId, selId, getG, setG, getU, setU) => {
+  const inp = Q(inpId), sel = Q(selId);
+  if (!inp) return;
+  inp.addEventListener('focus', () => { inp.value = fmtEdit(getG(), getU()); inp.select(); });
+  inp.addEventListener('input', () => { setG(parseG(inp.value, getU())); save(); softUpdate(); });
+  inp.addEventListener('blur', () => { inp.value = fmt(getG(), getU()); });
+  if (!sel) return;
+  sel.addEventListener('change', () => {
+    const u = sel.value; setU(u);
+    inp.value = document.activeElement === inp ? fmtEdit(getG(), u) : fmt(getG(), u);
+    save(); softUpdate();
+  });
+};
+
+// Apenas atualiza números no ecrã (rápido)
+const softUpdate = () => {
+  const r = recipes[activeTab];
+  const c = computeRecipe(r);
+
+  Qt('sv0', fmt(r.novaG, r.novaU));
+  Qt('sv1', fmt(c.fg, 'g') + ' g');
+  Qt('sv2', c.pctTotal);
+  Qt('sv3', fmt(c.tc, r.novaU));
+  
+  const isOk = c.tc === r.novaG && r.scaleMode === 'massa';
+  const sc3 = Q('sc3');
+  if (sc3) sc3.className = `sc ${r.scaleMode === 'farinha' ? 'hi' : (isOk ? '' : 'warn')}`;
+  Qt('sl3', r.scaleMode === 'farinha' ? 'Total Calculado' : `Total Calculado ${isOk ? '✓' : ''}`);
+
+  Qv('ro-flour', fmt(c.fg, 'g'));
+  Qt('fl-calc', fmt(c.calcFlourG, r.novaU));
+
+  c.blendsCalc.forEach((b, i) => Qt(`bl-calc-${i}`, fmt(b.calcG, b.u)));
+  c.ingsCalc.forEach((ing, i) => {
+    Qt(`ib-pct-${i}`, pctStr(ing.g, c.fg));
+    Qt(`ib-calc-${i}`, fmt(ing.calcG, ing.u));
+  });
+
+  Qt('tot-peso', fmt(c.tp, 'g'));
+  Qt('tot-pct', c.pctTotal);
+  Qt('tot-calc', fmt(c.tc, r.novaU));
+
+  if (r.bola.mode === 'peso') {
+    Qt('bc-qty', c.bola.qty > 0 ? `${c.bola.qty} bolas` : '–');
+    Qt('bc-resto', c.bola.resto > 0 ? `${fmt(c.bola.resto, 'g')} g sobra` : 'Sem sobra');
+  } else {
+    Qt('bc-peso', c.bola.pesoG > 0 ? `${fmt(c.bola.pesoG, r.bola.pesoU)} ${r.bola.pesoU}` : '–');
+  }
+};
+
+const renderTabs = () => {
+  const bar = Q('tbar'); bar.innerHTML = '';
+  recipes.forEach((r, i) => {
+    const tab = document.createElement('div');
+    tab.className = `tab ${i === activeTab ? 'on' : ''}`;
+    
+    const inp = document.createElement('input');
+    inp.className = 'tname'; inp.type = 'text'; inp.value = r.name; inp.maxLength = 24;
+    inp.addEventListener('pointerdown', e => { if (i !== activeTab) { e.preventDefault(); activeTab = i; save(); render(); }});
+    inp.addEventListener('change', () => { recipes[i].name = inp.value.trim() || 'Receita'; save(); renderTabs(); });
+    
+    const xb = document.createElement('button');
+    xb.className = 'tx'; xb.textContent = '×';
+    xb.addEventListener('click', e => { e.stopPropagation(); deleteRecipe(i); });
+    
+    tab.append(inp, xb); bar.appendChild(tab);
+  });
+  
+  const ab = document.createElement('button');
+  ab.className = 'tadd'; ab.textContent = '+';
+  ab.addEventListener('click', () => {
+    recipes.push(mkRecipe(`Receita ${recipes.length + 1}`));
+    activeTab = recipes.length - 1; save(); render(); toast('Nova receita criada ✓');
+  });
+  bar.appendChild(ab);
+};
+
+const renderContent = () => {
+  const r = recipes[activeTab];
+  const c = computeRecipe(r);
+  const isPeso = r.bola.mode === 'peso';
+  const isOk = c.tc === r.novaG && r.scaleMode === 'massa';
+
+  let html = `
+    <div class="sum-strip">
+      <div class="sc hi"><div class="sv" id="sv0">${fmt(r.novaG, r.novaU)}</div><div class="sl">Alvo Desejado</div></div>
+      <div class="sc"><div class="sv" id="sv1">${fmt(c.fg, 'g')} g</div><div class="sl">Base Farinha</div></div>
+      <div class="sc"><div class="sv" id="sv2">${c.pctTotal}</div><div class="sl">Hidratação</div></div>
+      <div class="sc ${r.scaleMode === 'farinha' ? 'hi' : (isOk ? '' : 'warn')}" id="sc3">
+        <div class="sv" id="sv3">${fmt(c.tc, r.novaU)}</div>
+        <div class="sl" id="sl3">Total Calculado ${r.scaleMode === 'massa' && isOk ? '✓' : ''}</div>
+      </div>
     </div>
 
-    <script>
-        // ── 1. ESTADO DA APLICAÇÃO (Os dados da imagem) ──
-        // Criamos as linhas exatas que mostraste na imagem, incluindo espaços em branco
-        let ingredientes = [
-            { id: 0, nome: "farinha", peso: 5000, isFarinha: true },
-            { id: 1, nome: "açúcar", peso: 120, isFarinha: false },
-            { id: 2, nome: "sal", peso: 120, isFarinha: false },
-            { id: 3, nome: "óleo", peso: 300, isFarinha: false },
-            { id: 4, nome: "água", peso: 2600, isFarinha: false },
-            { id: 5, nome: "fermento", peso: 10, isFarinha: false },
-            { id: 6, nome: "", peso: "", isFarinha: false },
-            { id: 7, nome: "", peso: "", isFarinha: false },
-            { id: 8, nome: "", peso: "", isFarinha: false },
-            { id: 9, nome: "", peso: "", isFarinha: false },
-            { id: 10, nome: "", peso: "", isFarinha: false }
-        ];
+    <div class="sec">
+      <div class="sec-hdr or">⚙️ Configuração Principal</div>
+      <div class="sec-body">
+        <div class="field-row">
+          <div class="field">
+            <span class="field-lbl">Escalar Receita Por:</span>
+            <div class="tog-row" style="margin-bottom:0">
+              <button class="tog-btn ${r.scaleMode === 'farinha' ? 'on' : ''}" id="sModeFar">Farinha</button>
+              <button class="tog-btn ${r.scaleMode === 'massa' ? 'on' : ''}" id="sModeMas">Massa Total</button>
+            </div>
+          </div>
+          <div class="field">
+            <span class="field-lbl">Nova Quantidade</span>
+            <div class="pill">
+              <input id="cNova" class="pill-in" type="text" inputmode="decimal" autocomplete="off" value="${fmt(r.novaG, r.novaU)}">
+              ${usel('cNovaU', r.novaU)}
+            </div>
+          </div>
+        </div>
+        <div class="field-row" style="margin-top:10px;">
+          <div class="field"><span class="field-lbl">Farinha Padrão (Σ)</span>
+            <div class="pill ro"><input id="ro-flour" class="pill-in" type="text" value="${fmt(c.fg, 'g')}" disabled><select class="psel" disabled><option>g</option></select></div>
+          </div>
+          <div class="field"><span class="field-lbl">Massa Padrão (Σ)</span>
+            <div class="pill ro"><input class="pill-in" type="text" value="${fmt(c.tp, 'g')}" disabled><select class="psel" disabled><option>g</option></select></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        // ── 2. REFERÊNCIAS DO DOM ──
-        const tbody = document.getElementById('lista-ingredientes');
-        const inputAlvoFarinha = document.getElementById('input-alvo-farinha');
-        const txtTotalPeso = document.getElementById('total-peso');
-        const txtTotalPerc = document.getElementById('total-perc');
-        const txtTotalGramas = document.getElementById('total-gramas');
+    <div class="sec">
+      <div class="sec-hdr bl">🌾 Blend de Farinhas</div>
+      <div class="sec-body">
+        ${r.blends.map((b, bi) => `
+          <div class="field">
+            <span class="field-lbl"><input type="text" id="bln${bi}" value="${esc(b.name)}" style="background:transparent;border:none;border-bottom:1px solid var(--bd);outline:none;color:var(--mu);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;padding:0 2px;width:100%;appearance:none;"></span>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <div class="pill" style="flex:1;"><input id="blg${bi}" class="pill-in" type="text" inputmode="decimal" autocomplete="off" value="${fmt(b.g, b.u)}">${usel(`blU${bi}`, b.u)}</div>
+              <span class="badge bbl" id="bl-calc-${bi}">${fmt(b.calcG, b.u)}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
 
-        // ── 3. FUNÇÃO DE RENDERIZAÇÃO E CÁLCULO ──
-        function atualizarPlanilha() {
-            tbody.innerHTML = ''; // Limpa a tabela
+    <div class="sec">
+      <div class="sec-hdr dk">📋 Ingredientes da Receita</div>
+      <div style="padding:12px 12px 4px">
+        <div class="flour-row">
+          <div class="flour-title">🌾 Farinha Total (Base 100%)</div>
+          <div class="flour-bottom">
+            <div class="pill ro"><input id="ro-flour2" class="pill-in" type="text" value="${fmt(c.fg, 'g')}" disabled><select class="psel" disabled><option>g</option></select></div>
+            <span class="badge bor">100,0 %</span>
+            <span class="badge bbl" id="fl-calc">${fmt(c.calcFlourG, r.novaU)}</span>
+          </div>
+        </div>
+        ${r.ings.map((ing, ii) => `
+          <div class="ing-card">
+            <div class="ing-top">
+              <input class="ing-name" type="text" id="iN${ii}" value="${esc(ing.name)}" placeholder="Nome do ingrediente" autocorrect="off" autocapitalize="words">
+              <button class="ing-del" id="iD${ii}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
+            </div>
+            <div class="ing-bottom">
+              <div class="pill"><input id="iG${ii}" class="pill-in" type="text" inputmode="decimal" autocomplete="off" value="${fmt(ing.g, ing.u)}">${usel(`iU${ii}`, ing.u)}</div>
+              <span class="badge bor" id="ib-pct-${ii}">${pctStr(ing.g, c.fg)}</span>
+              <span class="badge bbl" id="ib-calc-${ii}">${fmt(ing.calcG, ing.u)}</span>
+            </div>
+          </div>
+        `).join('')}
+        <div class="tot-row">
+          <span class="tot-lbl">Peso Total Original</span>
+          <span class="badge bor" id="tot-pct">${c.pctTotal}</span>
+          <span class="badge bgr" id="tot-calc" style="font-size:13px; margin-left:8px;">Nova Qt: ${fmt(c.tc, r.novaU)}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="act-row" style="margin-top:6px;">
+      <button class="btn btn-p" id="aAdd" style="width:100%;justify-content:center">＋ Adicionar Ingrediente</button>
+    </div>
 
-            // Vamos buscar o valor alvo da "Nova Receita"
-            const alvoFarinha = parseFloat(inputAlvoFarinha.value) || 0;
-            
-            // O peso base da farinha (que está sempre na posição 0) é a nossa referência de 100%
-            const pesoBaseFarinha = parseFloat(ingredientes[0].peso) || 1; 
+    <div class="sec">
+      <div class="sec-hdr yl">⚖️ Divisão das Bolas de Massa</div>
+      <div class="sec-body">
+        <div class="tog-row">
+          <button class="tog-btn ${isPeso ? 'on' : ''}" id="bModePeso">Por Peso / Bola</button>
+          <button class="tog-btn ${!isPeso ? 'on' : ''}" id="bModeQtd">Por Quantidade</button>
+        </div>
+        ${isPeso ? `
+          <div class="field-row">
+            <div class="field"><span class="field-lbl">Peso por bola</span><div class="pill"><input id="bPeso" class="pill-in" type="text" inputmode="decimal" value="${fmt(r.bola.pesoG, r.bola.pesoU)}">${usel('bPesoU', r.bola.pesoU)}</div></div>
+            <div class="field"><span class="field-lbl">Massa Disponível</span><div class="pill ro"><input class="pill-in" type="text" value="${fmt(c.tc, r.novaU)}" disabled><select class="psel" disabled><option>${r.novaU}</option></select></div></div>
+          </div>
+          <div class="div-line"><span>Resultado</span></div>
+          <div class="field-row">
+            <div class="field"><span class="field-lbl">Número de bolas</span><div class="ro-box accent" id="bc-qty">${c.bola.qty > 0 ? c.bola.qty + ' bolas' : '–'}</div></div>
+            <div class="field"><span class="field-lbl">Sobra de massa</span><div class="ro-box" id="bc-resto">${c.bola.resto > 0 ? fmt(c.bola.resto, 'g') + ' g' : 'Sem sobra'}</div></div>
+          </div>
+        ` : `
+          <div class="field-row">
+            <div class="field"><span class="field-lbl">Qtd. desejada</span><div class="pill"><input id="bQtd" class="pill-in" type="text" inputmode="decimal" value="${r.bola.qtd || ''}" placeholder="ex: 12"><select class="psel" disabled><option>un</option></select></div></div>
+            <div class="field"><span class="field-lbl">Massa Disponível</span><div class="pill ro"><input class="pill-in" type="text" value="${fmt(c.tc, r.novaU)}" disabled><select class="psel" disabled><option>${r.novaU}</option></select></div></div>
+          </div>
+          <div class="div-line"><span>Resultado</span></div>
+          <div class="field">
+            <span class="field-lbl">Peso por bola</span>
+            <div class="ro-box accent" id="bc-peso">${c.bola.pesoG > 0 ? fmt(c.bola.pesoG, r.bola.pesoU) + ' ' + r.bola.pesoU : '–'}</div>
+          </div>
+        `}
+      </div>
+    </div>
 
-            let somaPesoBase = 0;
-            let somaPerc = 0;
-            let somaGramas = 0;
+    <div class="act-row">
+      <button class="btn btn-s" id="aDup">⧉ Duplicar</button>
+      <button class="btn btn-s" id="aReset">↺ Padrão</button>
+      <button class="btn btn-d" id="aDel">🗑 Excluir</button>
+    </div>
 
-            // Percorre todos os ingredientes para criar as linhas e fazer as contas
-            ingredientes.forEach((ing, index) => {
-                const peso = parseFloat(ing.peso) || 0;
-                
-                // Matemática: Percentagem em relação à farinha
-                const percentagem = (peso / pesoBaseFarinha) * 100;
-                
-                // Matemática: Novos gramas baseados no alvo pretendido
-                const gramas = alvoFarinha * (percentagem / 100);
+    <div class="sec">
+      <div class="sec-hdr gn">📝 Anotações &amp; Modo de Preparo</div>
+      <div class="sec-body">
+        <textarea class="notes" id="notesTA" placeholder="Modo de preparo, temperatura, tempo de fermentação...">${esc(r.notes)}</textarea>
+      </div>
+    </div>
+  `;
+  
+  Q('page').innerHTML = html;
 
-                // Somatórios para o rodapé
-                somaPesoBase += peso;
-                somaPerc += percentagem;
-                somaGramas += gramas;
+  // ── BINDINGS DE EVENTOS ───────────────────────────
+  bindNum('cNova', 'cNovaU', () => recipes[activeTab].novaG, v => recipes[activeTab].novaG = v, () => recipes[activeTab].novaU, u => recipes[activeTab].novaU = u);
+  
+  on('sModeFar', 'click', () => { recipes[activeTab].scaleMode = 'farinha'; save(); renderContent(); });
+  on('sModeMas', 'click', () => { recipes[activeTab].scaleMode = 'massa'; save(); renderContent(); });
 
-                // Criação visual da linha da tabela (<tr>)
-                const tr = document.createElement('tr');
-                tr.className = ing.isFarinha ? 'linha-farinha' : 'linha-ingrediente';
+  r.blends.forEach((_, bi) => {
+    bindNum(`blg${bi}`, `blU${bi}`, () => recipes[activeTab].blends[bi].g, v => recipes[activeTab].blends[bi].g = v, () => recipes[activeTab].blends[bi].u, u => recipes[activeTab].blends[bi].u = u);
+    on(`bln${bi}`, 'change', () => { recipes[activeTab].blends[bi].name = Q(`bln${bi}`).value.trim() || `Blend ${bi + 1}`; save(); });
+  });
 
-                // Definimos o código HTML interno dessa linha
-                tr.innerHTML = `
-                    <td class="col-nome">
-                        <input type="text" id="nome-${index}" value="${ing.nome}" placeholder="..." ${ing.isFarinha ? 'readonly' : ''}>
-                    </td>
-                    <td class="col-peso">
-                        <input type="number" id="peso-${index}" value="${ing.peso}">
-                    </td>
-                    <td class="col-perc">${peso === 0 ? '' : percentagem.toFixed(1) + '%'}</td>
-                    <td class="col-gramas">${peso === 0 ? '' : gramas.toFixed(0)}</td>
-                `;
+  r.ings.forEach((_, ii) => {
+    bindNum(`iG${ii}`, `iU${ii}`, () => recipes[activeTab].ings[ii].g, v => recipes[activeTab].ings[ii].g = v, () => recipes[activeTab].ings[ii].u, u => recipes[activeTab].ings[ii].u = u);
+    on(`iN${ii}`, 'input', () => { recipes[activeTab].ings[ii].name = Q(`iN${ii}`).value; save(); });
+    on(`iD${ii}`, 'click', () => {
+      const nm = recipes[activeTab].ings[ii].name;
+      openModal('Remover Ingrediente', `Remover "${nm}" desta receita?`, () => {
+        recipes[activeTab].ings.splice(ii, 1); save(); renderContent(); toast(`"${nm}" removido.`, 'var(--rdk)');
+      }, 'Remover');
+    });
+  });
 
-                tbody.appendChild(tr);
+  if (isPeso) {
+    bindNum('bPeso', 'bPesoU', () => recipes[activeTab].bola.pesoG, v => recipes[activeTab].bola.pesoG = v, () => recipes[activeTab].bola.pesoU, u => recipes[activeTab].bola.pesoU = u);
+  } else {
+    on('bQtd', 'focus', () => Q('bQtd').select());
+    on('bQtd', 'input', () => { recipes[activeTab].bola.qtd = parseInt(Q('bQtd').value) || 0; save(); softUpdate(); });
+  }
+  
+  on('bModePeso', 'click', () => { recipes[activeTab].bola.mode = 'peso'; save(); renderContent(); });
+  on('bModeQtd', 'click', () => { recipes[activeTab].bola.mode = 'qtd'; save(); renderContent(); });
 
-                // Adicionar "ouvintes" (Event Listeners) para detetar quando o utilizador escreve
-                document.getElementById(`nome-${index}`).addEventListener('input', (e) => {
-                    ingredientes[index].nome = e.target.value;
-                });
+  on('aAdd', 'click', () => {
+    recipes[activeTab].ings.push({ name: 'Novo Ingrediente', g: 0, u: 'g' });
+    save(); renderContent();
+    const last = Q(`iN${recipes[activeTab].ings.length - 1}`);
+    if (last) { last.focus(); last.select(); }
+    toast('Ingrediente adicionado ✓');
+  });
 
-                document.getElementById(`peso-${index}`).addEventListener('input', (e) => {
-                    ingredientes[index].peso = e.target.value;
-                    atualizarPlanilha(); // Recalcula tudo se o peso mudar
-                });
-            });
+  on('aDup', 'click', () => {
+    const copy = JSON.parse(JSON.stringify(recipes[activeTab]));
+    copy.name += ' (Cópia)'; recipes.push(copy);
+    activeTab = recipes.length - 1; save(); render(); toast('Receita duplicada ✓');
+  });
 
-            // Atualiza o rodapé com os totais calculados
-            txtTotalPeso.textContent = somaPesoBase;
-            txtTotalPerc.textContent = somaPerc.toFixed(1) + '%';
-            txtTotalGramas.textContent = somaGramas.toFixed(1);
-        }
+  on('aReset', 'click', () => {
+    openModal('Restaurar Padrão', 'Substituir ingredientes pelos valores padrão?', () => {
+      const nm = recipes[activeTab].name, notes = recipes[activeTab].notes;
+      recipes[activeTab] = mkRecipe(nm); recipes[activeTab].notes = notes;
+      save(); renderContent(); toast('Receita restaurada.');
+    }, 'Restaurar', 'btn-s');
+  });
 
-        // ── 4. EVENT LISTENERS GERAIS E ARRANQUE ──
-        
-        // Se mudarmos o valor de "NOVA RECEITA", a tabela toda recalcula
-        inputAlvoFarinha.addEventListener('input', atualizarPlanilha);
+  on('aDel', 'click', () => deleteRecipe(activeTab));
+  on('notesTA', 'input', () => { recipes[activeTab].notes = Q('notesTA').value; save(); });
+};
 
-        // Arranca a aplicação desenhando a tabela pela primeira vez
-        atualizarPlanilha();
+const render = () => { renderTabs(); renderContent(); };
 
-    </script>
+// ─── INIT ─────────────────────────────────────────────
+load();
+render();
+</script>
 </body>
 </html>
