@@ -3,393 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gestor de Receitas de Pizza</title>
+    <title>Calculadora de Receitas Planilha</title>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
+        /* ── Variáveis de Cores baseadas na imagem ── */
         :root {
-            --bg: #0D0D0F;
-            --surface: #1A1A1E;
-            --surface-2: #222226;
-            --text: #F0F0F3;
-            --text-soft: #8A8A8F;
-            --border: rgba(255, 255, 255, 0.08);
-            --accent-primary: #FF9F0A; 
-            --danger: #FF453A;
+            --bg-geral: #2D2D2D;
+            --azul-cabecalho: #2A4875;
+            --castanho: #8B4513;
+            --amarelo-farinha: #FFC000;
+            --roxo-ingrediente: #7030A0;
+            --cinza-percentagem: #595959;
+            --azul-claro-gramas: #4A7EBB;
+            --borda: #FFFFFF;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Roboto', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            padding: 20px 10px;
+            background-color: var(--bg-geral);
+            color: white;
+            padding: 15px 5px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        /* ── Sistema de Abas (Tabs) ── */
-        .tabs-wrapper {
+        .planilha-container {
             width: 100%;
-            max-width: 420px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
+            max-width: 500px;
+            background-color: #333;
+            padding: 10px;
         }
 
-        .tabs-container {
-            display: flex;
-            overflow-x: auto;
-            gap: 8px;
-            padding-bottom: 5px;
-            scroll-behavior: smooth;
-        }
-
-        .tabs-container::-webkit-scrollbar { display: none; }
-        .tabs-container { -ms-overflow-style: none; scrollbar-width: none; }
-
-        .tab-btn {
-            background: var(--surface-2);
-            color: var(--text-soft);
-            border: 1px solid var(--border);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s ease;
-        }
-
-        .tab-btn.active {
-            background: rgba(255, 159, 10, 0.15);
-            color: var(--accent-primary);
-            border-color: var(--accent-primary);
-        }
-
-        .btn-add-tab {
-            background: var(--surface-2);
-            color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        /* ── Container Principal ── */
-        .calculadora-app {
-            background: var(--surface);
-            width: 100%;
-            max-width: 420px;
-            border-radius: 20px;
-            padding: 24px;
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-
-        /* ── Cabeçalho da Receita (Nome Editável) ── */
-        .receita-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 15px;
-        }
-
-        .input-nome-receita {
-            background: transparent;
-            border: none;
-            color: var(--text);
-            font-size: 1.2rem;
+        /* ── Cabeçalho e Nova Receita ── */
+        .titulo-principal {
+            background-color: var(--azul-cabecalho);
+            text-align: center;
+            padding: 12px;
             font-weight: 700;
-            outline: none;
-            width: 100%;
-        }
-        
-        .input-nome-receita:focus {
-            color: var(--accent-primary);
+            border: 1px solid var(--borda);
+            margin-bottom: 10px;
         }
 
-        .btn-apagar {
-            background: transparent;
-            border: none;
-            color: var(--danger);
-            cursor: pointer;
-            font-size: 1.2rem;
+        .linha-alvo {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .linha-alvo .etiqueta {
+            flex: 1;
+            background-color: var(--castanho);
+            text-align: center;
+            padding: 8px;
+            font-weight: 700;
+            border: 1px solid var(--borda);
+        }
+
+        .linha-alvo input {
+            width: 120px;
+            background-color: var(--azul-claro-gramas);
+            color: white;
+            font-weight: 700;
+            text-align: center;
+            border: 1px solid var(--borda);
+            outline: none;
+            font-size: 1rem;
+        }
+
+        /* ── Tabela Principal ── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            border: 1px solid var(--borda);
+            text-align: center;
+            vertical-align: middle;
+            height: 35px;
+        }
+
+        th {
+            background-color: var(--castanho);
+            font-weight: 700;
             padding: 5px;
         }
 
-        /* ── Entradas (Inputs) ── */
-        .header-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 16px; 
-            margin-bottom: 24px; 
+        /* Cores das colunas e linhas */
+        .col-nome input { text-align: right; padding-right: 10px; }
+        .col-peso input { text-align: center; }
+        .col-perc { background-color: var(--cinza-percentagem); font-weight: 700; }
+        .col-gramas { background-color: var(--azul-claro-gramas); font-weight: 700; }
+
+        .linha-farinha .col-nome, .linha-farinha .col-peso {
+            background-color: var(--amarelo-farinha);
+            color: black;
+            font-weight: 700;
         }
-        
-        /* Aumentei a margem inferior da secção de ingredientes para separar dos resultados */
-        .ingredientes-section {
-            margin-bottom: 24px;
-            padding-bottom: 24px;
-            border-bottom: 1px solid var(--border);
+        .linha-farinha input { color: black; font-weight: 700; }
+
+        .linha-ingrediente .col-nome, .linha-ingrediente .col-peso {
+            background-color: var(--roxo-ingrediente);
         }
 
-        .input-group { 
-            background: var(--surface-2); 
-            padding: 16px; 
-            border-radius: 12px; 
-            border: 1px solid var(--border); 
+        /* ── Inputs dentro da tabela ── */
+        table input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            font-family: inherit;
+            font-size: inherit;
         }
-        
-        .input-group label { 
-            display: block; 
-            color: var(--text-soft); 
-            font-size: 0.8rem; 
-            text-transform: uppercase; 
-            font-weight: 600; 
-            margin-bottom: 8px; 
-        }
-        
-        .input-group input[type="number"] { 
-            width: 100%; 
-            background: transparent; 
-            border: none; 
-            color: var(--accent-primary); 
-            font-size: 1.8rem; 
-            font-weight: 700; 
-            outline: none; 
-        }
+        table input::placeholder { color: rgba(255,255,255,0.4); }
 
-        /* ── Resultados ── */
-        .resultados-container h3 { font-size: 1rem; margin-bottom: 16px; color: var(--text-soft); text-transform: uppercase; letter-spacing: 1px; }
-        .resultado-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 1.05rem; }
-        .resultado-item:last-child { border-bottom: none; }
-        .resultado-item .nome { font-weight: 500; }
-        .resultado-item .valor { font-weight: 700; color: var(--text); }
-        .resultado-item.destaque .valor { color: var(--accent-primary); font-size: 1.2rem;}
+        /* ── Rodapé (Totais) ── */
+        tfoot td {
+            background-color: var(--castanho);
+            font-weight: 700;
+            padding: 8px 5px;
+        }
+        .footer-label {
+            text-align: left;
+            padding-left: 10px;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
 
-    <div class="tabs-wrapper">
-        <div class="tabs-container" id="tabs-container">
-            </div>
-        <button class="btn-add-tab" id="btn-nova-receita" title="Nova Receita">+</button>
-    </div>
-
-    <div class="calculadora-app">
+    <div class="planilha-container">
         
-        <div class="receita-header">
-            <input type="text" id="input-nome-receita" class="input-nome-receita" placeholder="Nome da Receita">
-            <button id="btn-apagar-receita" class="btn-apagar" title="Apagar Receita">🗑️</button>
-        </div>
-        
-        <div class="header-grid">
-            <div class="input-group">
-                <label>Bolas</label>
-                <input type="number" id="input-bolas" min="1" step="1">
-            </div>
-            <div class="input-group">
-                <label>Peso (g)</label>
-                <input type="number" id="input-peso" min="50" step="10">
-            </div>
+        <div class="titulo-principal">CALCULADORA DE RECEITAS</div>
+
+        <div class="linha-alvo">
+            <div class="etiqueta">NOVA RECEITA</div>
+            <input type="number" id="input-alvo-farinha" value="10000">
         </div>
 
-        <div class="ingredientes-section">
-            <div class="header-grid">
-                <div class="input-group">
-                    <label>Água (%)</label>
-                    <input type="number" id="input-agua" min="0" step="1">
-                </div>
-                <div class="input-group">
-                    <label>Sal (%)</label>
-                    <input type="number" id="input-sal" min="0" step="0.1">
-                </div>
-                <div class="input-group">
-                    <label>Fermento (%)</label>
-                    <input type="number" id="input-fermento" min="0" step="0.1">
-                </div>
-                <div class="input-group">
-                    <label>Azeite (%)</label>
-                    <input type="number" id="input-azeite" min="0" step="0.1">
-                </div>
-            </div>
-        </div>
-
-        <div class="resultados-container">
-            <h3>Receita Exata</h3>
-            <div class="resultado-item destaque">
-                <span class="nome">Massa Total</span>
-                <span class="valor" id="res-total">0g</span>
-            </div>
-            <div class="resultado-item"><span class="nome">Farinha</span><span class="valor" id="res-farinha">0g</span></div>
-            <div class="resultado-item"><span class="nome">Água</span><span class="valor" id="res-agua">0g</span></div>
-            <div class="resultado-item"><span class="nome">Sal</span><span class="valor" id="res-sal">0g</span></div>
-            <div class="resultado-item"><span class="nome">Fermento</span><span class="valor" id="res-fermento">0g</span></div>
-            <div class="resultado-item"><span class="nome">Azeite</span><span class="valor" id="res-azeite">0g</span></div>
-        </div>
+        <table id="tabela-ingredientes">
+            <thead>
+                <tr>
+                    <th style="width: 45%;">INGREDIENTES</th>
+                    <th style="width: 18%;">PESO</th>
+                    <th style="width: 18%;">%</th>
+                    <th style="width: 19%;">GRAMAS</th>
+                </tr>
+            </thead>
+            <tbody id="lista-ingredientes">
+                </tbody>
+            <tfoot>
+                <tr>
+                    <td class="footer-label">PESO TOTAL DA RECEITA</td>
+                    <td id="total-peso">0</td>
+                    <td id="total-perc">0%</td>
+                    <td id="total-gramas">0</td>
+                </tr>
+            </tfoot>
+        </table>
 
     </div>
 
     <script>
-        // ── ESTADO DA APLICAÇÃO ──
-        let receitas = [
-            { id: 1, nome: "Pizza Napolitana", bolas: 4, peso: 250, agua: 65, sal: 2.5, fermento: 0.3, azeite: 0 },
-            { id: 2, nome: "Massa Pan", bolas: 2, peso: 400, agua: 70, sal: 2.0, fermento: 1.0, azeite: 5.0 }
+        // ── 1. ESTADO DA APLICAÇÃO (Os dados da imagem) ──
+        // Criamos as linhas exatas que mostraste na imagem, incluindo espaços em branco
+        let ingredientes = [
+            { id: 0, nome: "farinha", peso: 5000, isFarinha: true },
+            { id: 1, nome: "açúcar", peso: 120, isFarinha: false },
+            { id: 2, nome: "sal", peso: 120, isFarinha: false },
+            { id: 3, nome: "óleo", peso: 300, isFarinha: false },
+            { id: 4, nome: "água", peso: 2600, isFarinha: false },
+            { id: 5, nome: "fermento", peso: 10, isFarinha: false },
+            { id: 6, nome: "", peso: "", isFarinha: false },
+            { id: 7, nome: "", peso: "", isFarinha: false },
+            { id: 8, nome: "", peso: "", isFarinha: false },
+            { id: 9, nome: "", peso: "", isFarinha: false },
+            { id: 10, nome: "", peso: "", isFarinha: false }
         ];
-        let receitaAtivaId = 1;
 
-        // ── REFERÊNCIAS DO DOM ──
-        const UI = {
-            tabsContainer: document.getElementById('tabs-container'),
-            btnNova: document.getElementById('btn-nova-receita'),
-            btnApagar: document.getElementById('btn-apagar-receita'),
-            
-            nome: document.getElementById('input-nome-receita'),
-            bolas: document.getElementById('input-bolas'),
-            peso: document.getElementById('input-peso'),
-            
-            // Agora apontam para os novos inputs de número
-            agua: document.getElementById('input-agua'),
-            sal: document.getElementById('input-sal'),
-            fermento: document.getElementById('input-fermento'),
-            azeite: document.getElementById('input-azeite'),
-            
-            resTotal: document.getElementById('res-total'),
-            resFarinha: document.getElementById('res-farinha'),
-            resAgua: document.getElementById('res-agua'),
-            resSal: document.getElementById('res-sal'),
-            resFermento: document.getElementById('res-fermento'),
-            resAzeite: document.getElementById('res-azeite')
-        };
+        // ── 2. REFERÊNCIAS DO DOM ──
+        const tbody = document.getElementById('lista-ingredientes');
+        const inputAlvoFarinha = document.getElementById('input-alvo-farinha');
+        const txtTotalPeso = document.getElementById('total-peso');
+        const txtTotalPerc = document.getElementById('total-perc');
+        const txtTotalGramas = document.getElementById('total-gramas');
 
-        // ── FUNÇÕES DE GESTÃO DE ABAS ──
-        function renderizarAbas() {
-            UI.tabsContainer.innerHTML = '';
+        // ── 3. FUNÇÃO DE RENDERIZAÇÃO E CÁLCULO ──
+        function atualizarPlanilha() {
+            tbody.innerHTML = ''; // Limpa a tabela
 
-            receitas.forEach(receita => {
-                const btn = document.createElement('button');
-                btn.className = `tab-btn ${receita.id === receitaAtivaId ? 'active' : ''}`;
-                btn.textContent = receita.nome;
-                btn.onclick = () => carregarReceita(receita.id);
-                UI.tabsContainer.appendChild(btn);
+            // Vamos buscar o valor alvo da "Nova Receita"
+            const alvoFarinha = parseFloat(inputAlvoFarinha.value) || 0;
+            
+            // O peso base da farinha (que está sempre na posição 0) é a nossa referência de 100%
+            const pesoBaseFarinha = parseFloat(ingredientes[0].peso) || 1; 
+
+            let somaPesoBase = 0;
+            let somaPerc = 0;
+            let somaGramas = 0;
+
+            // Percorre todos os ingredientes para criar as linhas e fazer as contas
+            ingredientes.forEach((ing, index) => {
+                const peso = parseFloat(ing.peso) || 0;
+                
+                // Matemática: Percentagem em relação à farinha
+                const percentagem = (peso / pesoBaseFarinha) * 100;
+                
+                // Matemática: Novos gramas baseados no alvo pretendido
+                const gramas = alvoFarinha * (percentagem / 100);
+
+                // Somatórios para o rodapé
+                somaPesoBase += peso;
+                somaPerc += percentagem;
+                somaGramas += gramas;
+
+                // Criação visual da linha da tabela (<tr>)
+                const tr = document.createElement('tr');
+                tr.className = ing.isFarinha ? 'linha-farinha' : 'linha-ingrediente';
+
+                // Definimos o código HTML interno dessa linha
+                tr.innerHTML = `
+                    <td class="col-nome">
+                        <input type="text" id="nome-${index}" value="${ing.nome}" placeholder="..." ${ing.isFarinha ? 'readonly' : ''}>
+                    </td>
+                    <td class="col-peso">
+                        <input type="number" id="peso-${index}" value="${ing.peso}">
+                    </td>
+                    <td class="col-perc">${peso === 0 ? '' : percentagem.toFixed(1) + '%'}</td>
+                    <td class="col-gramas">${peso === 0 ? '' : gramas.toFixed(0)}</td>
+                `;
+
+                tbody.appendChild(tr);
+
+                // Adicionar "ouvintes" (Event Listeners) para detetar quando o utilizador escreve
+                document.getElementById(`nome-${index}`).addEventListener('input', (e) => {
+                    ingredientes[index].nome = e.target.value;
+                });
+
+                document.getElementById(`peso-${index}`).addEventListener('input', (e) => {
+                    ingredientes[index].peso = e.target.value;
+                    atualizarPlanilha(); // Recalcula tudo se o peso mudar
+                });
             });
+
+            // Atualiza o rodapé com os totais calculados
+            txtTotalPeso.textContent = somaPesoBase;
+            txtTotalPerc.textContent = somaPerc.toFixed(1) + '%';
+            txtTotalGramas.textContent = somaGramas.toFixed(1);
         }
 
-        function carregarReceita(id) {
-            receitaAtivaId = id;
-            if (navigator.vibrate) navigator.vibrate(10);
-            
-            const receita = receitas.find(r => r.id === id);
-            
-            UI.nome.value = receita.nome;
-            UI.bolas.value = receita.bolas;
-            UI.peso.value = receita.peso;
-            UI.agua.value = receita.agua;
-            UI.sal.value = receita.sal;
-            UI.fermento.value = receita.fermento;
-            UI.azeite.value = receita.azeite;
+        // ── 4. EVENT LISTENERS GERAIS E ARRANQUE ──
+        
+        // Se mudarmos o valor de "NOVA RECEITA", a tabela toda recalcula
+        inputAlvoFarinha.addEventListener('input', atualizarPlanilha);
 
-            renderizarAbas();
-            calcularReceita();
-        }
-
-        function criarNovaReceita() {
-            if (navigator.vibrate) navigator.vibrate(20);
-            const novoId = Date.now();
-            const novaReceita = {
-                id: novoId,
-                nome: "Nova Receita",
-                bolas: 4, peso: 250, agua: 60, sal: 2.0, fermento: 0.5, azeite: 2.0
-            };
-            receitas.push(novaReceita);
-            carregarReceita(novoId);
-            UI.tabsContainer.scrollLeft = UI.tabsContainer.scrollWidth;
-        }
-
-        function apagarReceitaAtual() {
-            if (receitas.length <= 1) {
-                alert("Não podes apagar a única receita que tens!");
-                return;
-            }
-            if (confirm("Tens a certeza que queres apagar esta receita?")) {
-                receitas = receitas.filter(r => r.id !== receitaAtivaId);
-                carregarReceita(receitas[0].id);
-            }
-        }
-
-        // ── FUNÇÕES DE CÁLCULO E SINCRONIZAÇÃO ──
-        function formataGrama(valor) {
-            return Number(valor.toFixed(1)) + 'g';
-        }
-
-        function calcularReceita() {
-            // 1. Obter valores do DOM
-            const qtdBolas = parseInt(UI.bolas.value) || 1;
-            const pesoBola = parseInt(UI.peso.value) || 1;
-            const percAgua = parseFloat(UI.agua.value) || 0;
-            const percSal = parseFloat(UI.sal.value) || 0;
-            const percFermento = parseFloat(UI.fermento.value) || 0;
-            const percAzeite = parseFloat(UI.azeite.value) || 0;
-
-            // 2. Guardar as alterações no objeto da receita ativa
-            const receitaAtiva = receitas.find(r => r.id === receitaAtivaId);
-            receitaAtiva.bolas = qtdBolas;
-            receitaAtiva.peso = pesoBola;
-            receitaAtiva.agua = percAgua;
-            receitaAtiva.sal = percSal;
-            receitaAtiva.fermento = percFermento;
-            receitaAtiva.azeite = percAzeite;
-
-            // 3. Matemática de Padeiro
-            const massaTotal = qtdBolas * pesoBola;
-            const somaPercentagens = 1 + (percAgua/100) + (percSal/100) + (percFermento/100) + (percAzeite/100);
-            const pesoFarinha = massaTotal / somaPercentagens;
-
-            // 4. Renderizar na Tabela
-            UI.resTotal.textContent = formataGrama(massaTotal);
-            UI.resFarinha.textContent = formataGrama(pesoFarinha);
-            UI.resAgua.textContent = formataGrama(pesoFarinha * (percAgua / 100));
-            UI.resSal.textContent = formataGrama(pesoFarinha * (percSal / 100));
-            UI.resFermento.textContent = formataGrama(pesoFarinha * (percFermento / 100));
-            UI.resAzeite.textContent = formataGrama(pesoFarinha * (percAzeite / 100));
-        }
-
-        // ── EVENT LISTENERS (Ações do Utilizador) ──
-        UI.nome.addEventListener('input', (e) => {
-            const receitaAtiva = receitas.find(r => r.id === receitaAtivaId);
-            receitaAtiva.nome = e.target.value;
-            document.querySelector('.tab-btn.active').textContent = receitaAtiva.nome;
-        });
-
-        // Atualiza a matemática em tempo real ao mexer nos inputs
-        [UI.bolas, UI.peso, UI.agua, UI.sal, UI.fermento, UI.azeite].forEach(input => {
-            input.addEventListener('input', () => {
-                calcularReceita();
-            });
-        });
-
-        UI.btnNova.addEventListener('click', criarNovaReceita);
-        UI.btnApagar.addEventListener('click', apagarReceitaAtual);
-
-        // ── ARRANQUE ──
-        carregarReceita(1);
+        // Arranca a aplicação desenhando a tabela pela primeira vez
+        atualizarPlanilha();
 
     </script>
 </body>
