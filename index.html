@@ -332,7 +332,7 @@ const UNITS = ['g', 'kg', 'ml', 'L', 'un'];
 const toG = (val, u) => (u === 'kg' || u === 'L') ? val * 1000 : val;
 const fromG = (g, u) => (u === 'kg' || u === 'L') ? (g || 0) / 1000 : (g || 0);
 
-// Formatação para visualização (com separador de milhares)
+// Formatação para visualização
 const fmt = (g, u) => {
   const v = fromG(g, u);
   return (u === 'kg' || u === 'L') 
@@ -340,7 +340,7 @@ const fmt = (g, u) => {
     : Math.round(v).toLocaleString('pt-BR');
 };
 
-// Formatação para edição (remove pontos de milhar para não confundir o parser)
+// Formatação para edição
 const fmtEdit = (g, u) => {
   const v = fromG(g, u);
   if (u === 'kg' || u === 'L') {
@@ -349,7 +349,7 @@ const fmtEdit = (g, u) => {
   return String(Math.round(v));
 };
 
-// Parser robusto para input pt-BR
+// Parser robusto e seguro (impede valores negativos agora)
 const parseG = (raw, u) => {
   let s = String(raw || '').trim().replace(/\s/g, '');
   if (!s) return 0;
@@ -365,8 +365,10 @@ const parseG = (raw, u) => {
     const parts = s.split('.');
     if (parts.length === 2 && parts[1].length === 3) s = s.replace('.', '');
   }
-  s = s.replace(/[^\d.\-]/g, '');
-  return toG(parseFloat(s) || 0, u);
+  
+  // Impede entrada de letras e hífens (números negativos)
+  s = s.replace(/[^\d.]/g, '');
+  return toG(Math.max(0, parseFloat(s) || 0), u);
 };
 
 const pctStr = (ig, fg) => !fg ? '–' : (ig / fg * 100).toFixed(1).replace('.', ',') + ' %';
@@ -376,10 +378,8 @@ const mkRecipe = (name) => ({
   name: name || 'Nova Receita',
   novaG: 10000, 
   novaU: 'g',
-  scaleMode: 'massa', // 'massa' (Massa Total) ou 'farinha' (Base Farinha)
-  blends: [
-    { name: 'Farinha 00', g: 5000, u: 'g' },
-  ],
+  scaleMode: 'massa',
+  blends: [{ name: 'Farinha 00', g: 5000, u: 'g' }],
   ings: [
     { name: 'Água',     g: 3000, u: 'ml' },
     { name: 'Sal',      g: 150,  u: 'g' },
@@ -393,12 +393,11 @@ const mkRecipe = (name) => ({
 const flourG = (r) => r.blends.reduce((s, b) => s + (b.g || 0), 0);
 const totIngG = (r) => flourG(r) + r.ings.reduce((s, i) => s + (i.g || 0), 0);
 
-// Motor Central: Calcula toda a receita com Correção de Arredondamento (Delta)
+// Motor Central
 const computeRecipe = (r) => {
   const fg = flourG(r);
   const tp = totIngG(r);
   
-  // Define o fator multiplicador baseado no Modo de Escala
   const factor = r.scaleMode === 'farinha' 
     ? (fg ? r.novaG / fg : 0) 
     : (tp ? r.novaG / tp : 0);
@@ -408,13 +407,12 @@ const computeRecipe = (r) => {
 
   let tc = blendsCalc.reduce((s, b) => s + b.calcG, 0) + ingsCalc.reduce((s, i) => s + i.calcG, 0);
 
-  // Delta Correction: Garante que a soma bate exatamente com o alvo se escalar por Massa Total
+  // Delta Correction
   if (r.scaleMode === 'massa' && factor > 0 && tc !== r.novaG) {
     const delta = r.novaG - tc;
     let maxObj = null;
     let maxVal = -1;
     
-    // Procura o ingrediente mais pesado para absorver a diferença de 1g ou 2g
     [...blendsCalc, ...ingsCalc].forEach(item => {
       if (item.calcG > maxVal) { maxVal = item.calcG; maxObj = item; }
     });
@@ -428,7 +426,6 @@ const computeRecipe = (r) => {
   const calcFlourG = blendsCalc.reduce((s, b) => s + b.calcG, 0);
   const pctTotal = fg ? ((tp / fg) * 100).toFixed(1).replace('.', ',') + ' %' : '–';
 
-  // O volume disponível para fazer bolas é sempre o Total Calculado (tc)
   let bola = { qty: 0, pesoG: 0, resto: 0 };
   if (r.bola.mode === 'peso') {
     bola.qty = r.bola.pesoG > 0 ? Math.floor(tc / r.bola.pesoG) : 0;
@@ -462,7 +459,7 @@ const load = () => {
       recipes.forEach(r => {
         if (!r.novaU) r.novaU = 'g';
         if (!r.novaG) r.novaG = 10000;
-        if (!r.scaleMode) r.scaleMode = 'massa'; // Migração para o novo modo
+        if (!r.scaleMode) r.scaleMode = 'massa';
         r.blends = (r.blends || []).map(b => ({ name: b.name || 'Blend', g: b.g || b.grams || b.peso || 0, u: b.u || b.unit || 'g' }));
         r.ings = (r.ings || r.ingredients || []).filter(i => !i.isFlour).map(i => ({ name: i.name || 'Ingrediente', g: i.g || i.grams || i.peso || 0, u: i.u || i.unit || 'g' }));
         if (!r.bola) r.bola = { mode: 'peso', pesoG: 250, pesoU: 'g', qtd: 0 };
@@ -533,11 +530,12 @@ const bindNum = (inpId, selId, getG, setG, getU, setU) => {
   });
 };
 
-// Apenas atualiza números no ecrã (rápido)
+// Função 100% corrigida: mapeia e atualiza todos os elementos visuais
 const softUpdate = () => {
   const r = recipes[activeTab];
   const c = computeRecipe(r);
 
+  // Summary topo
   Qt('sv0', fmt(r.novaG, r.novaU));
   Qt('sv1', fmt(c.fg, 'g') + ' g');
   Qt('sv2', c.pctTotal);
@@ -546,21 +544,27 @@ const softUpdate = () => {
   const isOk = c.tc === r.novaG && r.scaleMode === 'massa';
   const sc3 = Q('sc3');
   if (sc3) sc3.className = `sc ${r.scaleMode === 'farinha' ? 'hi' : (isOk ? '' : 'warn')}`;
-  Qt('sl3', r.scaleMode === 'farinha' ? 'Total Calculado' : `Total Calculado ${isOk ? '✓' : ''}`);
+  Qt('sl3', r.scaleMode === 'farinha' ? 'Total Calculado' : `Total Calculado ${isOk ? '✓' : '⚠'}`);
 
+  // Campos "Read-Only" no painel Configurações e Ingredientes
   Qv('ro-flour', fmt(c.fg, 'g'));
+  Qv('ro-massa', fmt(c.tp, 'g'));
+  Qv('ro-flour2', fmt(c.fg, 'g')); 
   Qt('fl-calc', fmt(c.calcFlourG, r.novaU));
 
+  // Blends e Ingredientes
   c.blendsCalc.forEach((b, i) => Qt(`bl-calc-${i}`, fmt(b.calcG, b.u)));
   c.ingsCalc.forEach((ing, i) => {
     Qt(`ib-pct-${i}`, pctStr(ing.g, c.fg));
     Qt(`ib-calc-${i}`, fmt(ing.calcG, ing.u));
   });
 
+  // Totais Gerais
   Qt('tot-peso', fmt(c.tp, 'g'));
   Qt('tot-pct', c.pctTotal);
-  Qt('tot-calc', fmt(c.tc, r.novaU));
+  Qt('tot-calc', `Nova Qt: ${fmt(c.tc, r.novaU)}`); // Preserva o texto!
 
+  // Bolas
   if (r.bola.mode === 'peso') {
     Qt('bc-qty', c.bola.qty > 0 ? `${c.bola.qty} bolas` : '–');
     Qt('bc-resto', c.bola.resto > 0 ? `${fmt(c.bola.resto, 'g')} g sobra` : 'Sem sobra');
@@ -609,7 +613,7 @@ const renderContent = () => {
       <div class="sc"><div class="sv" id="sv2">${c.pctTotal}</div><div class="sl">Hidratação</div></div>
       <div class="sc ${r.scaleMode === 'farinha' ? 'hi' : (isOk ? '' : 'warn')}" id="sc3">
         <div class="sv" id="sv3">${fmt(c.tc, r.novaU)}</div>
-        <div class="sl" id="sl3">Total Calculado ${r.scaleMode === 'massa' && isOk ? '✓' : ''}</div>
+        <div class="sl" id="sl3">Total Calculado ${r.scaleMode === 'massa' && isOk ? '✓' : (r.scaleMode === 'massa' ? '⚠' : '')}</div>
       </div>
     </div>
 
@@ -637,7 +641,7 @@ const renderContent = () => {
             <div class="pill ro"><input id="ro-flour" class="pill-in" type="text" value="${fmt(c.fg, 'g')}" disabled><select class="psel" disabled><option>g</option></select></div>
           </div>
           <div class="field"><span class="field-lbl">Massa Padrão (Σ)</span>
-            <div class="pill ro"><input class="pill-in" type="text" value="${fmt(c.tp, 'g')}" disabled><select class="psel" disabled><option>g</option></select></div>
+            <div class="pill ro"><input id="ro-massa" class="pill-in" type="text" value="${fmt(c.tp, 'g')}" disabled><select class="psel" disabled><option>g</option></select></div>
           </div>
         </div>
       </div>
